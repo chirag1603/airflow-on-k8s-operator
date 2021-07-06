@@ -606,6 +606,27 @@ func gcsContainer(s *alpha1.GCSSpec, volName string) (bool, corev1.Container) {
 	return init, container
 }
 
+func s3Container(s *alpha1.S3Spec, volName string) (bool, corev1.Container) {
+	init := false
+	container := corev1.Container{}
+	env := []corev1.EnvVar{
+		{Name: "S3_BUCKET", Value: s.Bucket},
+	}
+	container = corev1.Container{
+		Name:  "s3-syncd",
+		Image: alpha1.S3syncImage + ":" + alpha1.S3syncVersion,
+		Env:   env,
+		Args:  []string{"/home/airflow/s3"},
+		VolumeMounts: []corev1.VolumeMount{
+			{
+				Name:      volName,
+				MountPath: "/home/airflow/s3",
+			},
+		},
+	}
+
+	return init, container
+}
 func gitContainer(s *alpha1.GitSpec, volName string) (bool, corev1.Container) {
 	init := false
 	image := alpha1.GitsyncImage + ":" + alpha1.GitsyncVersion
