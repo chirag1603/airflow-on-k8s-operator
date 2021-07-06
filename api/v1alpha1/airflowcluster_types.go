@@ -38,6 +38,8 @@ const (
 	defaultFlowerImage      = "gcr.io/airflow-operator/airflow"
 	GitsyncImage            = "k8s.gcr.io/git-sync/git-sync"
 	GitsyncVersion          = "v3.2.2"
+	S3syncImage             = "quay.io/cchoudha/s3sync"
+	S3syncVersion           = "latest"
 	GCSsyncImage            = "gcr.io/cloud-airflow-releaser/gcs-syncd"
 	GCSsyncVersion          = "cloud_composer_service_2018-05-23-RC0"
 	ExecutorLocal           = "Local"
@@ -248,6 +250,12 @@ type GCSSpec struct {
 	// Once syncs initially and quits (use init container instead of sidecar)
 	Once bool `json:"once,omitempty"`
 }
+type S3Spec struct {
+	// Bucket describes the GCS bucket
+	Bucket string `json:"bucket,omitempty"`
+	// Reference to S3-sync image specific configuration
+	S3Sync *S3SyncSpec `json:"sync,omitempty"`
+}
 
 func (s *GCSSpec) validate(fp *field.Path) field.ErrorList {
 	errs := field.ErrorList{}
@@ -261,6 +269,13 @@ func (s *GCSSpec) validate(fp *field.Path) field.ErrorList {
 		errs = append(errs, field.NotSupported(fp.Child("once"), "true", []string{}))
 	}
 	return errs
+}
+
+//S3SyncSpec defines attributes related to the s3-sync container itself
+type S3SyncSpec struct {
+	Image   string            `json:"image,omitempty"`
+	Version string            `json:"tag,omitempty"`
+	Env     map[string]string `json:"env,omitempty"`
 }
 
 //SyncSpec defines attributes related to the git-sync container itself
@@ -319,6 +334,8 @@ type DagSpec struct {
 	Storage *StorageSpec `json:"storage,omitempty"`
 	// Gcs config which uses storage spec
 	GCS *GCSSpec `json:"gcs,omitempty"`
+	// S3 config which uses storage spec
+	S3 *S3Spec `json:"s3,omitempty"`
 }
 
 func (s *DagSpec) validate(fp *field.Path) field.ErrorList {

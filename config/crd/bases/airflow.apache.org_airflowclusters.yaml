@@ -662,6 +662,13 @@ spec:
                         instead of sidecar)
                       type: boolean
                   type: object
+                s3:
+                  description: s3 config which uses storage spec
+                  properties:
+                    bucket:
+                      description: Bucket describes the GCS bucket
+                      type: string
+                  type: object
                 git:
                   description: GitSpec defines details to pull DAGs from a git repo
                     using github.com/kubernetes/git-sync sidecar
